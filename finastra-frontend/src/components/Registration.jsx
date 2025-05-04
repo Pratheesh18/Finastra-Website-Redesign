@@ -53,6 +53,9 @@ function RegistrationForm() {
     return errors;
   };
 
+  const API_URL = process.env.REACT_APP_API_URL || '/api';
+//  const response = await axios.post(`${API_URL}/register`, formData);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -78,13 +81,11 @@ function RegistrationForm() {
     
     try {
       
-      const response = await  axios.post('http://localhost:5000/api/register',formData,{
+      const response = await  axios.post(`${API_URL}/register`,formData,{
         headers : {
           'Content-Type' : 'application/json' 
         }
       })
-      
-      const data = await response.json();
       
       if (!response.ok) {
         throw new Error(data.message || 'Failed to submit registration');

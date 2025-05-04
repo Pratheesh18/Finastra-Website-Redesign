@@ -80,7 +80,7 @@ function RegistrationForm() {
     
     try {
       
-      const response = await  axios.post(`${API_URL}/register`,formData,{
+      const response = await  axios.post(`${API_URL}/api/register`,formData,{
         headers : {
           'Content-Type' : 'application/json' 
         }

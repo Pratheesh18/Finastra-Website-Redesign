@@ -85,6 +85,8 @@ function RegistrationForm() {
           'Content-Type' : 'application/json' 
         }
       })
+
+      const data = response.data;
       
       if (!response.ok) {
         throw new Error(data.message || 'Failed to submit registration');

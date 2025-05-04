@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion} from 'framer-motion';
 import { FiUser, FiMail, FiMessageSquare, FiSend, FiCheck, FiAlertCircle } from 'react-icons/fi';
 import { itemFadeIn } from '../utils/animations';
+import axios from 'axios';
 
 function RegistrationForm() {
   const [formData, setFormData] = useState({
@@ -77,13 +78,11 @@ function RegistrationForm() {
     
     try {
       
-      const response = await fetch('http://localhost:5000/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await  axios.post('http://localhost:5000/api/register',formData,{
+        headers : {
+          'Content-Type' : 'application/json' 
+        }
+      })
       
       const data = await response.json();
       
@@ -106,10 +105,13 @@ function RegistrationForm() {
       
     } catch (error) {
       console.error('Registration error:', error);
+
+      const errorMessage = error.response?.data?.message || error.message ||     'Something went wrong. Please try again later.';
+
       setFormStatus({
         isSubmitting: false,
         isSubmitted: false,
-        error: error.message || 'Something went wrong. Please try again later.'
+        error: errorMessage
       });
     }
   };

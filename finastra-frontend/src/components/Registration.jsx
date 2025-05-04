@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion} from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FiUser, FiMail, FiMessageSquare, FiSend, FiCheck, FiAlertCircle } from 'react-icons/fi';
 import { itemFadeIn } from '../utils/animations';
 import axios from 'axios';
@@ -28,7 +28,6 @@ function RegistrationForm() {
       [name]: value
     });
     
-    // Clear error when user starts typing
     if (formErrors[name]) {
       setFormErrors({
         ...formErrors,
@@ -53,7 +52,7 @@ function RegistrationForm() {
     return errors;
   };
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || '';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,25 +78,20 @@ function RegistrationForm() {
     });
     
     try {
-      
-      const response = await  axios.post(`${API_URL}/api/register`,formData,{
-        headers : {
-          'Content-Type' : 'application/json' 
+      const response = await axios.post(`${API_URL}/api/register`, formData, {
+        headers: {
+          'Content-Type': 'application/json' 
         }
-      })
-
-      const data = response.data;
+      });
       
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to submit registration');
-      }
+  
+      console.log('Registration successful:', response.data);
       
       setFormStatus({
         isSubmitting: false,
         isSubmitted: true,
         error: null
       });
-      
       
       setFormData({
         fullName: '',
@@ -108,7 +102,9 @@ function RegistrationForm() {
     } catch (error) {
       console.error('Registration error:', error);
 
-      const errorMessage = error.response?.data?.message || error.message ||     'Something went wrong. Please try again later.';
+      const errorMessage = error.response?.data?.message || 
+                          error.message || 
+                          'Something went wrong. Please try again later.';
 
       setFormStatus({
         isSubmitting: false,
@@ -116,6 +112,20 @@ function RegistrationForm() {
         error: errorMessage
       });
     }
+  };
+
+  const resetForm = () => {
+    setFormStatus({
+      isSubmitting: false,
+      isSubmitted: false,
+      error: null
+    });
+    setFormData({
+      fullName: '',
+      email: '',
+      message: ''
+    });
+    setFormErrors({});
   };
 
   const formContainerVariants = {
@@ -160,49 +170,51 @@ function RegistrationForm() {
 
   if (formStatus.isSubmitted) {
     return (
-      <motion.div 
-        className="p-8 bg-gradient-to-b from-green-50 to-white rounded-lg border border-green-200 text-center shadow-lg"
-        variants={successVariants}
-        initial="hidden"
-        animate="visible"
-      >
+      <AnimatePresence>
         <motion.div 
-          className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-6"
-          variants={iconCircleVariants}
+          className="p-8 bg-gradient-to-b from-green-50 to-white rounded-lg border border-green-200 text-center shadow-lg"
+          variants={successVariants}
+          initial="hidden"
+          animate="visible"
         >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+          <motion.div 
+            className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-6"
+            variants={iconCircleVariants}
           >
-            <FiCheck className="h-10 w-10 text-green-600" />
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+            >
+              <FiCheck className="h-10 w-10 text-green-600" />
+            </motion.div>
           </motion.div>
+          
+          <motion.h3 
+            className="text-2xl font-bold text-green-700 mb-3"
+            variants={itemFadeIn}
+          >
+            Registration Successful!
+          </motion.h3>
+          
+          <motion.p 
+            className="text-green-600 mb-6"
+            variants={itemFadeIn}
+          >
+            Thank you for registering for the event. We look forward to seeing you there!
+          </motion.p>
+          
+          <motion.button
+            className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg shadow-md hover:shadow-lg font-medium transition-all duration-300"
+            onClick={resetForm}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            variants={itemFadeIn}
+          >
+            Register Another
+          </motion.button>
         </motion.div>
-        
-        <motion.h3 
-          className="text-2xl font-bold text-green-700 mb-3"
-          variants={itemFadeIn}
-        >
-          Registration Successful!
-        </motion.h3>
-        
-        <motion.p 
-          className="text-green-600 mb-6"
-          variants={itemFadeIn}
-        >
-          Thank you for registering for the event. We look forward to seeing you there!
-        </motion.p>
-        
-        <motion.button
-          className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg shadow-md hover:shadow-lg font-medium transition-all duration-300"
-          onClick={() => setFormStatus({ isSubmitting: false, isSubmitted: false, error: null })}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          variants={itemFadeIn}
-        >
-          Register Another
-        </motion.button>
-      </motion.div>
+      </AnimatePresence>
     );
   }
 
@@ -221,10 +233,6 @@ function RegistrationForm() {
           className="mb-6 text-center relative"
           variants={itemFadeIn}
         >
-          {/* <h3 className="text-2xl font-bold text-gray-900 mb-2">Register for the Event</h3> */}
-          {/* <div className="h-1 w-20 bg-blue-600 mx-auto rounded-full"></div> */}
-          
-          {/* Decorative elements */}
           <motion.div 
             className="absolute w-3 h-3 rounded-full bg-blue-200 -left-1 top-2"
             animate={{ 
@@ -256,7 +264,6 @@ function RegistrationForm() {
         )}
         
         <div className="space-y-5">
-          {/* Full Name Field */}
           <motion.div variants={itemFadeIn}>
             <div className="mb-1 font-medium text-gray-700">
               <label htmlFor="fullName">Full Name</label>
@@ -287,8 +294,6 @@ function RegistrationForm() {
               )}
             </div>
           </motion.div>
-          
-          {/* Email Field */}
           <motion.div variants={itemFadeIn}>
             <div className="mb-1 font-medium text-gray-700">
               <label htmlFor="email">Email Address</label>
@@ -319,8 +324,6 @@ function RegistrationForm() {
               )}
             </div>
           </motion.div>
-          
-          {/* Message Field */}
           <motion.div variants={itemFadeIn}>
             <div className="mb-1 font-medium text-gray-700">
               <label htmlFor="message">Message (Optional)</label>
@@ -375,8 +378,6 @@ function RegistrationForm() {
           </button>
         </motion.div>
       </div>
-      
-      {/* Animated accent bar at bottom of form */}
       <motion.div
         className="h-1.5 bg-gradient-to-r from-blue-400 via-blue-600 to-purple-600"
         initial={{ scaleX: 0 }}

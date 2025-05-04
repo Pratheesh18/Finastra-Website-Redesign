@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: 'https://finastra-frontend.onrender.com' // or '*'
+  origin: 'https://finastra-frontend.onrender.com'
 }));
 
 app.use(express.json());
